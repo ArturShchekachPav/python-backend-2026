@@ -1,14 +1,13 @@
-from fastapi import APIRouter, Query, Depends, status, HTTPException
+from fastapi import APIRouter, Query
 from typing import Annotated
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from shop_api.core.db import get_async_session
-from shop_api.schemas.cart import CartListQuery
+from shop_api.api.exceptions import HTTPItemNotFoundError, HTTPCartNotFoundError
+from shop_api.core.deps import SessionDep
+from shop_api.schemas.cart import CartListQuery, CartDB
 from shop_api.services.cart import CartService
+from shop_api.services.exceptions import CartNotFoundError, ItemNotFoundError
 
 router = APIRouter(prefix="/cart", tags=["cart"])
-
-SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 
 @router.post(
     "/",
@@ -36,9 +35,7 @@ async def get_cart_by_id(cart_id: int, session: SessionDep):
     try:
         return await cart_service.get_cart_by_id(cart_id)
     except CartNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found"
-        )
+        raise HTTPCartNotFoundError()
 
 @router.post(
     "/{cart_id}/add/{item_id}",
@@ -47,12 +44,8 @@ async def get_cart_by_id(cart_id: int, session: SessionDep):
 async def add_item_cart(cart_id: int, item_id: int, session: SessionDep):
     cart_service = CartService(session)
     try:
-            return await cart_service.add_item_to_cart(cart_id, item_id)
+        return await cart_service.add_item_to_cart(cart_id, item_id)
     except CartNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Cart not found"
-        )
+        raise HTTPCartNotFoundError()
     except ItemNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise HTTPItemNotFoundError()

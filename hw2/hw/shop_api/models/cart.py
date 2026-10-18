@@ -5,10 +5,8 @@ from shop_api.core.db import Base, CommonMixin
 
 
 class Cart(CommonMixin, Base):
-    items: Mapped[list["Item"]] = relationship(
+    items: Mapped[list["CartItem"]] = relationship(
         back_populates="cart",
         cascade="all, delete-orphan",
-    )
-    price: Mapped[float] = mapped_column(
-        Float, nullable=False, default=0
+        lazy="selectin",
     )

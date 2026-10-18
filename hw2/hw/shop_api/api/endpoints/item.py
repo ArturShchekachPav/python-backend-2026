@@ -1,6 +1,12 @@
-from fastapi import APIRouter
+from typing import Annotated
 
+from fastapi import APIRouter, Query
+
+from shop_api.core.deps import SessionDep
+from shop_api.schemas.item import ItemDB, ItemCreate, ItemListQuery, ItemUpdate, ItemReplace
+from shop_api.services.exceptions import ItemNotFoundError
 from shop_api.services.item import ItemService
+from shop_api.api.exceptions import HTTPItemNotFoundError
 
 router = APIRouter(prefix="/item", tags=["item"])
 
@@ -29,35 +35,29 @@ async def get_item_by_id(item_id: int, session: SessionDep):
     try:
         return await item_service.get_item_by_id(item_id, session)
     except ItemNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise HTTPItemNotFoundError()
 
 @router.put(
     "/{item_id}",
     response_model=ItemDB,
 )
-async def full_update_item_by_id(obj_in: ItemFullUpdate, item_id: int, session: SessionDep):
+async def replace_item_by_id(obj_in: ItemReplace, item_id: int, session: SessionDep):
     item_service = ItemService(session)
     try:
         return await item_service.update_item_by_id(obj_in, item_id)
     except ItemNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise HTTPItemNotFoundError()
 
 @router.patch(
     "/{item_id}",
     response_model=ItemDB,
 )
-async def partially_update_item_by_id(obj_in: ItemPartiallyUpdate, item_id: int, session: SessionDep):
+async def update_item_by_id(obj_in: ItemUpdate, item_id: int, session: SessionDep):
     item_service = ItemService(session)
     try:
         return await item_service.update_item_by_id(obj_in, item_id)
     except ItemNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise HTTPItemNotFoundError()
 
 @router.delete(
     "/{item_id}",
@@ -68,6 +68,4 @@ async def delete_item_by_id(item_id: int, session: SessionDep):
     try:
         return await item_service.delete_item_by_id(item_id)
     except ItemNotFoundError:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
-        )
+        raise HTTPItemNotFoundError()
