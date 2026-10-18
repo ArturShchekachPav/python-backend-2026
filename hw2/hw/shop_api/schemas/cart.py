@@ -11,7 +11,7 @@ class CartListQuery(BaseModel):
     max_quantity: Optional[int] = Field(None, ge=0)
 
 
-class CartItem(BaseModel):
+class CartItemDB(BaseModel):
     id: int
     name: str
     quantity: int
@@ -23,6 +23,6 @@ class CartItem(BaseModel):
 class CartDB(BaseModel):
     id: int
     price: float
-    items: list[CartItem]
+    items: list[CartItemDB]
 
     model_config = ConfigDict(from_attributes=True)

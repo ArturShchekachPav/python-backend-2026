@@ -18,7 +18,7 @@ class CommonMixin:
 
     @declared_attr
     def __tablename__(cls):
-        return cls.__name__.lower()
+        return cls.__name__.lower() + 's'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
@@ -30,4 +30,9 @@ AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 async def get_async_session():
     async with AsyncSessionLocal() as async_session:
-        yield async_session
+        try:
+            yield async_session
+            await async_session.commit()
+        except Exception:
+            await async_session.rollback()
+            raise

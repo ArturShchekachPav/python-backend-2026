@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, status
+from fastapi.responses import JSONResponse
 from typing import Annotated
 
 from shop_api.api.exceptions import HTTPItemNotFoundError, HTTPCartNotFoundError
@@ -10,15 +11,18 @@ from shop_api.services.exceptions import CartNotFoundError, ItemNotFoundError
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 @router.post(
-    "/",
-    response_model=CartDB,
+    "",
 )
 async def create_new_cart(session: SessionDep):
-    cart_service = CartService(session)
-    return await cart_service.create_cart()
+    cart = await CartService(session).create_cart()
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"id": cart.id},
+        headers={"Location": f"/cart/{cart.id}"},
+    )
 
 
-@router.get("/", response_model=list[CartDB])
+@router.get("", response_model=list[CartDB])
 async def get_carts(
     session: SessionDep,
     query: Annotated[CartListQuery, Query()]

@@ -7,7 +7,7 @@ class ItemListQuery(BaseModel):
     limit: int = Field(10, gt=0)
     min_price: Optional[float] = Field(None, ge=0)
     max_price: Optional[float] = Field(None, ge=0)
-    show_deleted: Optional[bool] = Field(False, ge=0)
+    show_deleted: bool = False
 
 
 class ItemCreate(BaseModel):

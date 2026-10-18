@@ -8,5 +8,4 @@ class Cart(CommonMixin, Base):
     items: Mapped[list["CartItem"]] = relationship(
         back_populates="cart",
         cascade="all, delete-orphan",
-        lazy="selectin",
     )

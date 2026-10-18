@@ -10,8 +10,9 @@ class CRUDBase:
         self.model = model
         self.session = session
 
-    async def create(self, obj_in: BaseModel):
-        new_obj = self.model(**obj_in.model_dump())
+    async def create(self, obj_in: BaseModel | None = None):
+        data = obj_in.model_dump() if obj_in is not None else {}
+        new_obj = self.model(**data)
         self.session.add(new_obj)
         await self.session.flush()
         return new_obj
