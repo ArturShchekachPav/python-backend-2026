@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 from shop_api.core.config import settings
-from shop_api.core.db import Base
+from shop_api.core.base import Base
 
 config = context.config
 
