@@ -13,3 +13,5 @@ aiosqlite==0.17.0
 alembic==1.7.7
 python-dotenv==1.0.1
 fastapi[standard]
+prometheus-fastapi-instrumentator
+asyncpg>=0.31.0,
