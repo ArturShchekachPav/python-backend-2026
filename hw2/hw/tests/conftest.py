@@ -7,7 +7,7 @@ from shop_api.core.db import Base, get_async_session
 import pytest_asyncio
 from fastapi.testclient import TestClient
 import pytest
-import 
+from shop_api.core.base import Item, Cart, CartItem
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
@@ -43,10 +43,13 @@ app.dependency_overrides[get_async_session] = override_db
 @pytest_asyncio.fixture
 async def session():
     async with AsyncTestingSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.rollback()
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(autouse=True)
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -60,7 +63,29 @@ def test_client():
     with TestClient(app) as client:
         yield client
 
-@pytest.fixture
-def item():
-    with TestClient(app) as client:
-        yield client
+
+@pytest_asyncio.fixture
+async def item(session):
+    item = Item(name="Test Item", price=10.0)
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+    return item
+
+
+@pytest_asyncio.fixture
+async def cart(session):
+    cart = Cart()
+    session.add(cart)
+    await session.commit()
+    await session.refresh(cart)
+    return cart
+
+
+@pytest_asyncio.fixture
+async def cart_item(session, item, cart):
+    cart_item = CartItem(cart_id=cart.id, item_id=item.id, quantity=1)
+    session.add(cart_item)
+    await session.commit()
+    await session.refresh(cart_item)
+    return cart_item
