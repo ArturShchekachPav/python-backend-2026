@@ -1,0 +1,7 @@
+CART_PREFIX_URL = '/cart'
+CART_DETAILS_URL = '/{cart_id}'
+ITEM_PREFIX_URL = '/item'
+ITEM_DETAILS_URL = '/{item_id}'
+ADD_ITEM_TO_CART_URL = CART_DETAILS_URL + '/add' + ITEM_DETAILS_URL
+CART_NOT_FOUND_MESSAGE = 'Cart not found'
+ITEM_NOT_FOUND_MESSAGE = 'Item not found'

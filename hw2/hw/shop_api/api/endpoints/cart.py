@@ -3,12 +3,13 @@ from fastapi.responses import JSONResponse
 from typing import Annotated
 
 from shop_api.api.exceptions import HTTPItemNotFoundError, HTTPCartNotFoundError
+from shop_api.core.constants import CART_PREFIX_URL, CART_DETAILS_URL, ADD_ITEM_TO_CART_URL
 from shop_api.core.deps import SessionDep
 from shop_api.schemas.cart import CartListQuery, CartDB
 from shop_api.services.cart import CartService
 from shop_api.services.exceptions import CartNotFoundError, ItemNotFoundError
 
-router = APIRouter(prefix="/cart", tags=["cart"])
+router = APIRouter(prefix=CART_PREFIX_URL, tags=["cart"])
 
 @router.post(
     "",
@@ -18,7 +19,7 @@ async def create_new_cart(session: SessionDep):
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content={"id": cart.id},
-        headers={"Location": f"/cart/{cart.id}"},
+        headers={"Location": CART_PREFIX_URL + CART_DETAILS_URL.format(cart_id=cart.id)},
     )
 
 
@@ -31,7 +32,7 @@ async def get_carts(
     return await cart_service.get_carts(query)
 
 @router.get(
-    "/{cart_id}",
+    CART_DETAILS_URL,
     response_model=CartDB,
 )
 async def get_cart_by_id(cart_id: int, session: SessionDep):
@@ -42,7 +43,7 @@ async def get_cart_by_id(cart_id: int, session: SessionDep):
         raise HTTPCartNotFoundError()
 
 @router.post(
-    "/{cart_id}/add/{item_id}",
+    ADD_ITEM_TO_CART_URL,
     response_model=CartDB,
 )
 async def add_item_cart(cart_id: int, item_id: int, session: SessionDep):

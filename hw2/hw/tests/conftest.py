@@ -74,6 +74,15 @@ async def item(session):
 
 
 @pytest_asyncio.fixture
+async def deleted_item(session):
+    item = Item(name="Test Item", price=10.0, deleted=True)
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+    return item
+
+
+@pytest_asyncio.fixture
 async def cart(session):
     cart = Cart()
     session.add(cart)
